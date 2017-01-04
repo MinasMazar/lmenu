@@ -1,36 +1,48 @@
 # lmenu
 
-FIXME: description
+This is my personal journey through [ Clojure ](https://clojure.org/).
 
-## Installation
+ Lmenu is a wrapper around [dmenu](https://wiki.archlinux.org/index.php/dmenu) a pop-up tool to do almost everything..
+ 
+## The end of the journey
 
-Download from http://example.com/FIXME.
+If you run lmenu.core/-main you'll get 
 
-## Usage
+~~~
+$ lein run
+Received wake code: default
+Picked element with label < Exec firefox >
+The item selected is [Exec firefox (fn* [] (sh firefox))]
+Exception in thread "main" java.lang.RuntimeException: Unable to resolve symbol: sh in this context, compiling:(/tmp/form-init8966476250419733582.clj:10:49)
+        at clojure.lang.Compiler.analyze(Compiler.java:6688)
+        at clojure.lang.Compiler.analyze(Compiler.java:6625)
+        at clojure.lang.Compiler$InvokeExpr.parse(Compiler.java:3766)
+        at clojure.lang.Compiler.analyzeSeq(Compiler.java:6870)
+        at clojure.lang.Compiler.analyze(Compiler.java:6669)
+        at clojure.lang.Compiler.analyze(Compiler.java:6625)
+        at clojure.lang.Compiler$BodyExpr$Parser.parse(Compiler.java:6001)
 
-FIXME: explanation
+~~~
 
-    $ java -jar lmenu-0.1.0-standalone.jar [args]
+Cannot move on from this issue.. how can *eval* evaluate the code within the *lmenu.core* namespace?
 
-## Options
+~~~clojure
+(ns lmenu.core
+  (:require [lmenu.dmenu :as dmenu]
+            [clojure.string :as str])
+  (:use [lmenu.debug]
+        [clojure.java.shell :only [ sh ] ])
+  (:gen-class))
 
-FIXME: listing of options this app accepts.
+(def root-menu "Root items" [
+                             [ "Add 1 2 3" '(+ 1 2 3) ]
+                             [ "Exec firefox" '#(sh "firefox") ] ; <-- the anonymous function does not access to sh function from clojure.java.shell
+                             ])
 
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2017 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+(defn eval-item
+  "Eval item"
+  [str]
+  (if (string? str)
+    (eval (read-string) str)
+    (eval str )))
+~~~
