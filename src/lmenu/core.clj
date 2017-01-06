@@ -7,7 +7,7 @@
 
 (def root-menu "Root items" [
                              [ "Add 1 2 3" '(+ 1 2 3) ]
-                             [ "Exec firefox" '#(sh "firefox") ]
+                             [ "Exec firefox" `(sh "firefox") ]
                              ])
 
 ;; (binding [*ns* lmenu.core] (eval (read-string str)) )
