@@ -29,24 +29,39 @@
       (catch Exception e# (str "exception catched: " (.getMessage e#))))
     ~f)))
 
+(defn interpole-string
+  "Interpole string, replacing every __TOKEN__ with user input via dmenu"
+  [str]
+  (reduce #(str/replace %1 %2 (:out (lmenu.dmenu/pick %2 [] ) ) ) str (re-seq #"_.+?_" str))
+  )
+
 (defn -main
   "Entry point for lmenu app"
   [& args]
-  (loop [ wake_code (str/trim-newline (slurp "/home/minasmazar/.rmenu_waker"))]
+  (loop [ wake_code (str/trim (slurp "/home/minasmazar/.rmenu_waker"))]
     (println "Received wake code:" wake_code)
-    (if (= wake_code "default")
+    (if (or (= wake_code "default") true)
       (let [
             items (map first root-menu)
             res (dmenu/pick "prompt" items :lines 11)
             picked (str/trim-newline (:out res) )
             item (first (filter #(= picked (first %)) root-menu) )
+            value (second item)
             ]
         (println "Picked element with label <" picked ">")
         (println "The item selected is" item )
-        (secure-exec
-         (let [ ret (eval-item (second item))]
-           (println (second item))
-           (println "Evaluation of <" (second item) "> returned: " ret)
-           ) false)
-        (recur (slurp "/home/minasmazar/.rmenu_waker")))))
+        (if value
+          (if (seq? value)
+            (secure-exec
+             (let [ ret (eval value)]
+               (println value)
+               (println "Evaluation of <" value "> returned: " ret)
+               ) false)
+            (if (string? value)
+              (println "value is a string")
+              (println "values is not a string")
+              ;; (sh value)
+              ))))
+      (println "Unable to resolve wake code " wake_code))
+    (recur (slurp "/home/minasmazar/.rmenu_waker")))
   (System/exit 0))
