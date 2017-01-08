@@ -1,6 +1,6 @@
 (ns lmenu.dmenu
   (:use
-   [ clojure.string :only [ join ] ]
+   [ clojure.string :only [ join trim-newline] ]
    [ clojure.java.shell :only [ sh ] ]
    ))
 
@@ -11,6 +11,7 @@
         cmd (map str [ "dmenu" "-p" prompt "-l" lines ])
         lines (str lines)
         items (join "\n" items)
+        sh_ret (sh "dmenu" "-p" prompt "-l" lines :in items)
         ]
-    (sh "dmenu" "-p" prompt "-l" lines :in items)
+    (assoc sh_ret :out (trim-newline (:out sh_ret)))
   ))
