@@ -9,4 +9,13 @@
                  ]
   :main ^:skip-aot lmenu.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}}
+  :plugins [ [ lein-watch "0.0.2" ] ]
+  :watch {
+          :rate 500 ;; check file every 500ms ('watchtower' is used internally)
+          :watchers {
+                     :compile {
+                               :watch-dirs ["src"]
+                               :file-patterns [#"\.clj"]
+                               :tasks ["compile"]}}}
+  )
